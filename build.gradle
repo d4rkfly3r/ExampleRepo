@@ -1,0 +1,51 @@
+import jaci.openrio.gradle.GradleRIOPlugin
+import jaci.openrio.gradle.frc.FRCJavaArtifact
+import jaci.openrio.gradle.frc.RoboRIO
+
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'jaci.openrio.gradle.GradleRIO' version '2017.10.24b'
+}
+
+group 'net.foxdenstudio.frc'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+
+ext.TEAM_NUMBER = 3863
+ext.ROBOT_CLASS = "org.usfirst.frc.team3863.robot.Robot"
+
+deploy {
+    targets {
+        target("roborio", RoboRIO) {
+            team = TEAM_NUMBER
+        }
+    }
+    artifacts {
+        artifact('frcJava', FRCJavaArtifact) {
+            targets << "roborio"
+        }
+    }
+}
+
+dependencies {
+    compile wpilib()
+    compile ctre()
+    compile navx()
+}
+
+jar {
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    manifest GradleRIOPlugin.javaManifest(ROBOT_CLASS)
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.2.1'
+}
